@@ -1,0 +1,2 @@
+12345678,jose ulises ,zambrano ,panduro,1,2,2002,m,987654321,jose,1234567
+12345678,jose,zambrano,panduro,12,12,2002,m,987654321,jose,1234567
