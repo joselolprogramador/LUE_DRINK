@@ -1,5 +1,6 @@
 package LUE_DRINK;
 
+// Importamos las clases necesarias de la biblioteca Java
 import java.awt.AWTException;
 import java.awt.Robot;
 import java.io.BufferedReader;
@@ -15,15 +16,16 @@ import java.io.FileWriter;
 
 public class LUE_DRINK {
 
-    // VARIABLES GLOBALES
-    static Scanner scanner = new Scanner(System.in);
-    static ArrayList<String> usuarios = new ArrayList<>();
-    static ArrayList<String> contrasenas = new ArrayList<>();
-    static ArrayList<String> carritoProductos = new ArrayList<>();
-    static ArrayList<Integer> carritoCantidad = new ArrayList<>();
-    static ArrayList<Double> carritoPrecios = new ArrayList<>();
-    static ArrayList<String> historialCompras = new ArrayList<>();
+    // Creamos variables para almacenar productos, cantidades y precios en el carrito
+    private static Scanner scanner = new Scanner(System.in);
+    private static ArrayList<String> usuarios = new ArrayList<>();
+    private static ArrayList<String> contrasenas = new ArrayList<>();
+    private static ArrayList<String> carritoProductos = new ArrayList<>();
+    private static ArrayList<Integer> carritoCantidad = new ArrayList<>();
+    private static ArrayList<Double> carritoPrecios = new ArrayList<>();
+    private static ArrayList<String> historialCompras = new ArrayList<>();
 
+    // Definimos string para cambiar el color
     public static final String negro = "\033[30m";
     public static final String rojo = "\033[31m";
     public static final String verde = "\033[32m";
@@ -34,24 +36,25 @@ public class LUE_DRINK {
     public static final String blanco = "\033[37m";
 
     public static void main(String[] args) throws AWTException {
-
-        cargarDatos(); // Carga los datos de usuario al iniciar
+        // llamamos a la funcion "cargarDatos" para Cargar los datos de usuario al iniciar
+        cargarDatos(); 
         while (true) {
             mostrarMenuPrincipal();
         }
     }
-
+    //opción de registrarse e iniciar sesión en la que el cajero tendrá que elegir
     private static void mostrarMenuPrincipal() throws AWTException {
 
         int opcion;
-        do {
+        
             mensaje(verde + "-----------------------------------------------\n");
             mensaje("                 MENU DE INICIO                \n");
             mensaje(verde + "-----------------------------------------------\n");
 
-            System.out.println("1. Registro \n2. Iniciar Sesion\n3. Salir\nelija una opción: ");
+            System.out.println("1. Registro \n2. Iniciar Sesion\nelija una opción: ");
             opcion = capturarnumero();
-
+            
+            // Evaluamos la opción seleccionada y llamamos al método correspondiente
             switch (opcion) {
                 case 1:
                     registrarUsuario();
@@ -61,53 +64,46 @@ public class LUE_DRINK {
                     iniciarSesion();
 
                     break;
-                case 3:
-                    System.out.println("gracias por usar el sistema, hasta luego");
-                    System.exit(0);
-
-                    break;
 
                 default:
                     System.out.println("Opcion no valida. Intente nuevamente");
             }
-
-        } while (opcion != 3);
     }
 
+    // Función para registrar un nuevo usuario
     private static void registrarUsuario() {
+        // Solicitar el DNI al usuario y validar que tenga 8 dígitos numerico    
         System.out.print("DNI:");
         String dni = scanner.nextLine();
         if (!dni.matches("\\d{8}")) {
             System.out.println("DNI inválido. Debe contener exactamente 8 dígitos numéricos.");
             return;
         }
-
+        // Solicitar los nombres del usuario y validar que sean letras
         System.out.print("Nombres:");
         String nombres = scanner.nextLine();
         if (!nombres.matches("[a-zA-Z\\s]+")) {
             System.out.println("Nombres Invalidos, Intente nuevamente");
             return;
         }
-
+        // Solicitar el apellido paterno del usuario y validar que sean letras
         System.out.print("Apellido Paterno:");
         String apellidoPaterno = scanner.nextLine();
         if (!apellidoPaterno.matches("[a-zA-Z\\s]+")) {
             System.out.println("Apellido Paterno invalido, Intente nuevamente");
             return;
         }
-
+        // Solicitar el apellido materno del usuario y validar que sean letras
         System.out.print("Apellido Materno:");
         String apellidoMaterno = scanner.nextLine();
         if (!apellidoMaterno.matches("[a-zA-Z\\s]+")) {
             System.out.println("Apellido Materno invalido, Intente nuevamente");
             return;
         }
-
+        // Solicitar y validar las fechas de nacimiento
         mensaje("Fecha de Nacimiento:\n");
         System.out.print("dia:");
-
         String dia = capturartexto();
-
         int diaInt = Integer.parseInt(dia);
         if (diaInt <= 0 || diaInt > 31) {
             mensaje("El dia debe ser mayor que 0 y menor que 30. Intente nuevamente.\n");
@@ -116,23 +112,21 @@ public class LUE_DRINK {
 
         System.out.print("mes:");
         String mes = capturartexto();
-
         int mesInt = Integer.parseInt(mes);
         if (mesInt <= 0 || mesInt > 13) {
             mensaje("El mes debe ser mayor que 0 y menor que 13. Intente nuevamente.\n");
             return;
         }
 
-        System.out.print("anio");
+        System.out.print("anio:");
         String anio = capturartexto();
-
         int anioInt = Integer.parseInt(anio);
 
         // Restricción de rango de año y mensajes de error específicos
         if (anioInt < 1920) {
             mensaje("Es muy viejo para registrarse. Intente nuevamente.\n");
             return;
-        } else if (anioInt > 2007) {
+        } else if (anioInt > 2005) {
             mensaje("Es menor de edad. No puede registrarse.\n");
             return;
         }
@@ -147,29 +141,45 @@ public class LUE_DRINK {
         mensaje("Telefono:\n");
         System.out.print(verde + "+51");
         String telefono = scanner.nextLine();
-
         if (!telefono.matches("9\\d{8}")) {
             mensaje("Teléfono inválido. Debe comenzar con 9 y tener 9 dígitos. Intente nuevamente.");
-
             return;
         }
-
-        System.out.println("Usuario:");
+        // Solicitar y validar el día de nacimiento
+            System.out.print("Usuario:");
         String usuario = scanner.nextLine();
-        // Usar la función combinada para verificar tanto el DNI como el usuario
-        if (datosExistentes(dni, usuario)) {
+
+        // Verificar si el DNI o el nombre de usuario ya están registrados
+        try (BufferedReader reader = new BufferedReader(new FileReader("C:\\Users\\JOSELOL\\Documents\\fundamentos Programacion\\practicadeprogramador\\primer ciclo\\mis proyectos\\proyectos completos\\LUE_DRINK\\usuarios.txt"))) {
+            String linea;
+            while ((linea = reader.readLine()) != null) {
+                String[] datos = linea.split(",");
+                if (datos.length > 10) {
+                    if (datos[0].equals(dni)) {
+                        System.out.println("DNI ya registrado. Intente con otro.");
+                        return;
+                    }
+                    if (datos[9].equals(usuario)) {
+                        System.out.println("Nombre de usuario ya registrado. Intente con otro nombre de usuario.");
+                        return;
+                    }
+                }
+            }
+        } catch (IOException e) {
+            System.out.println("Error al leer el archivo de usuarios: " + e.getMessage());
             return;
         }
 
-        // Resto del proceso de registro
+        // Solicitar y validar la contraseña
         System.out.println("Contraseña (más de 6 dígitos):");
         String contrasena = scanner.nextLine();
         if (contrasena.length() <= 6) {
             System.out.println("Contraseña inválida. Debe tener más de 6 dígitos. Intente nuevamente");
             return;
         }
+
         // Guardar los datos en el archivo
-        try (BufferedWriter writer = new BufferedWriter(new FileWriter("C:\\Users\\JOSELOL\\Documents\\fundamentos Programacion\\practicadeprogramador\\primer ciclo\\mis proyectos\\proyectos completos\\LUE_SHOP\\usuarios.txt", true))) {
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter("C:\\Users\\JOSELOL\\Documents\\fundamentos Programacion\\practicadeprogramador\\primer ciclo\\mis proyectos\\proyectos completos\\LUE_DRINK\\usuarios.txt", true))) {
             writer.write(dni + "," + nombres + "," + apellidoPaterno + "," + apellidoMaterno + "," + dia + "," + mes + "," + anio + "," + sexo + "," + telefono + "," + usuario + "," + contrasena);
             writer.newLine();
             System.out.println("Usuario registrado exitosamente.");
@@ -177,7 +187,7 @@ public class LUE_DRINK {
             System.out.println("Error al guardar los datos del usuario: " + e.getMessage());
         }
     }
-
+// Función para iniciar sesión
     private static void iniciarSesion() throws AWTException {
         Robot r = new Robot();
         int contador = 0;
@@ -192,95 +202,71 @@ public class LUE_DRINK {
             System.out.println("Ingrese su contraseña:");
             String contrasena = scanner.nextLine();
 
-            if (verificarUsuario(usuario, contrasena)) {
+            // Verificar si el nombre de usuario y la contraseña son correctos
+            boolean usuarioValido = false;
+            try (BufferedReader reader = new BufferedReader(new FileReader("C:\\Users\\JOSELOL\\Documents\\fundamentos Programacion\\practicadeprogramador\\primer ciclo\\mis proyectos\\proyectos completos\\LUE_DRINK\\usuarios.txt"))) {
+                String linea;
+                while ((linea = reader.readLine()) != null) {
+                    String[] datos = linea.split(",");
+                    if (datos.length > 10 && datos[9].equals(usuario) && datos[10].equals(contrasena)) {
+                        usuarioValido = true;
+                        break;
+                    }
+                }
+            } catch (IOException e) {
+                System.out.println("Error al leer el archivo de usuarios: " + e.getMessage());
+            }
+            // Si el usuario es válido, mostrar el menú de opciones
+            if (usuarioValido) {
                 System.out.println("Inicio de sesión exitoso.");
-                mostrarMenuOpciones();  // Lleva al usuario al menú de opciones si la verificación es exitosa
+                mostrarMenuOpciones();  
             } else {
+                // Si el usuario no es válido, incrementar el contador e intentar de nuevo
                 System.out.println("Usuario o contraseña incorrectos. Intente nuevamente.");
                 contador++;
             }
-
+            // Si se alcanzan tres intentos fallidos, esperar 15 segundos
             if (contador == 3) {
                 System.out.println("espere unos segundos");
                 r.delay(15000);
                 contador = 0;
                 mostrarMenuPrincipal();
-                return;
             }
-
         } while (contador < 4);
-
     }
 
-    private static boolean datosExistentes(String dni, String usuario) {
-        
-        try (BufferedReader reader = new BufferedReader(new FileReader("C:\\Users\\JOSELOL\\Documents\\fundamentos Programacion\\practicadeprogramador\\primer ciclo\\mis proyectos\\proyectos completos\\LUE_SHOP\\usuarios.txt"))) {
-            String linea;
-            while ((linea = reader.readLine()) != null) {
-                String[] datos = linea.split(",");
-                if (datos.length > 10) {
-                    // Comprobación del DNI
-                    if (datos[0].equals(dni)) {
-                        System.out.println("DNI ya registrado. Intente con otro DNI.");
-                        return true;
-                    }
-                    // Comprobación del nombre de usuario
-                    if (datos[9].equals(usuario)) {
-                        System.out.println("Nombre de usuario ya registrado. Intente con otro nombre de usuario.");
-                        return true;
-                    }
-                }
-            }
-        } catch (IOException e) {
-            System.out.println("Error al leer el archivo de usuarios: " + e.getMessage());
-            return true; // Retorna true para manejar la excepción como un caso de error.
-        }
-        return false;
-    }
-
-    private static boolean verificarUsuario(String usuario, String contrasena) {
-        try (BufferedReader reader = new BufferedReader(new FileReader("C:\\Users\\JOSELOL\\Documents\\fundamentos Programacion\\practicadeprogramador\\primer ciclo\\mis proyectos\\proyectos completos\\LUE_SHOP\\usuarios.txt"))) {
-            String linea;
-            while ((linea = reader.readLine()) != null) {
-                String[] datos = linea.split(",");
-                // Asumiendo que usuario está en la posición 6 y contraseña en la posición 7 del array
-                if (datos.length > 10 && datos[9].equals(usuario) && datos[10].equals(contrasena)) {
-                    return true;  // Credenciales correctas
-                }
-            }
-        } catch (IOException e) {
-            System.out.println("Error al leer el archivo de usuarios: " + e.getMessage());
-        }
-        return false;  // Credenciales incorrectas o no encontradas
-    }
-
+    // Función para cargar datos desde un archivo
     private static void cargarDatos() {
+        // Intenta abrir y leer el archivo de usuarios
         try (Scanner fileScanner = new Scanner(new File("usuarios.txt"))) {
+            // Lee cada línea del archivo hasta el final
             while (fileScanner.hasNextLine()) {
                 String linea = fileScanner.nextLine();
+                // Divide la línea en datos separados por comas
                 String[] datos = linea.split(",");
-                // Asumiendo que el formato es nombres, apellidoPaterno, apellidoMaterno, fechaNacimiento, sexo, contacto, usuario, contrasena
+                 // Verifica que hay suficientes datos en la línea
                 if (datos.length >= 12) {
                     String usuario = datos[10];
                     String contrasena = datos[11];
+                    // Añade el usuario y la contraseña a las listas
                     usuarios.add(usuario);
                     contrasenas.add(contrasena);
                 }
             }
         } catch (FileNotFoundException e) {
             System.out.println("Archivo de datos no encontrado. Se creará uno nuevo al registrar un usuario.");
-        } catch (Exception e) {
-            System.out.println("Error al leer el archivo de datos.");
             e.printStackTrace();
-        }
-    }
-
+        } 
+       }
+    
+    //función para mostrar Menu de opciones
     private static void mostrarMenuOpciones() {
 
         int opcion;
+        // Bucle para mantener el menú hasta que el usuario decida salir
         do {
             mensaje(verde + "-----------------------------------------------\n");
-            mensaje("                 Mnu de opciones               \n");
+            mensaje("                 Menu de opciones               \n");
             mensaje(verde + "-----------------------------------------------\n");
 
             mensaje("1. Catalogo\n2. Carrito de Compras\n3. Nosotros\n4. Contactenos\n0. Salir\n");
@@ -306,26 +292,31 @@ public class LUE_DRINK {
                 default:
                     mensaje("Opción no válida. Intente nuevamente.");
             }
-
+          // El bucle se repite hasta que el usuario elija salir
         } while (opcion != 0);
 
     }
     
     private static void mostrarNosotros() {
-        System.out.println("Nosotros");
-        System.out.println("LuesDrink es una empresa dedicada a la venta de bebidas de todo tipo");
-        System.out.println("Nuestro compromiso es ofrecer productos de alta calidad a nuestros clientes");
-        System.out.println("Fundado en 2020, LuesDrink se ha convertido en un referente en el mercado de bebidas");
-
+        mensaje("Nosotros");
+        mensaje("LuesDrink es una empresa dedicada a la venta de bebidas de todo tipo");
+        mensaje("Nuestro compromiso es ofrecer productos de alta calidad a nuestros clientes");
+        mensaje("Fundado en 2020, LuesDrink se ha convertido en un referente en el mercado de bebidas");
+        mensaje("");
+        mensaje("coloque cualquiero numero o letra para salir");
+        String numLetra = capturartexto();
+        
     }
 
     private static void mostrarContactenos() {
 
-        System.out.println("Contactenos");
-        System.out.println("Direccion: Av Las begonias 123, Lima, Peru");
-        System.out.println("Telefono: +51 943 433 434");
-        System.out.println("Correo. luesdrink@gmail.com");
-        System.out.println("Horario de atencion: Lunes a Viernes, de 9am a 6pm");
+        mensaje("Contactenos");
+        mensaje("Telefonos: 925 192 911, 951 360 586");
+        mensaje("Correo. luesdrink@gmail.com");
+        mensaje("Horario de atencion: Lunes a Viernes, de 9am a 6pm");
+        mensaje("coloque cualquiero numero o letra para salir");
+        String numLetra = capturartexto();
+        
 
     }
 
@@ -364,29 +355,36 @@ public class LUE_DRINK {
                 default:
                     mensaje("Opcion invalida. Intente nuevamente");
             }
+          // El bucle se repite hasta que el usuario elija retroceder   
         } while (opcion != 0);
 
     }
-
+    // función para mostrar los productos en el carrito y permitir procesar la compra
     private static void mostrarCarrito() {
         
 
         mensaje(verde + "-----------------------------------------------\n");
         mensaje("             carrito de compras                \n");
         mensaje(verde + "-----------------------------------------------\n");
+       // Verificamos si el carrito está vacío 
        if (carritoProductos.isEmpty()) {
         System.out.println("El carrito está vacío");
     } else {
         double total = 0;
+        // Recorremos los productos en el carrito y mostramos la información
         for (int i = 0; i < carritoProductos.size(); i++) {
+             // Mostramos la cantidad, el nombre y el precio de cada producto
             System.out.println(carritoCantidad.get(i) + " x " + carritoProductos.get(i) + " - S/." + carritoPrecios.get(i));
-            total += carritoCantidad.get(i) * carritoPrecios.get(i);
+            // Calculamos el subtotal por producto
+            total = carritoCantidad.get(i) * carritoPrecios.get(i);
         }
+        // Mostramos el total del carrito
         System.out.println("Total del carrito: S/. " + total);
         
         int opcion;
+        // Bucle para permitir al usuario decidir si quiere realizar la compra
         do {
-            mensaje("Desea realizar compra?");
+            mensaje("Desea realizar la compra?");
             mensaje("1. Sí");
             mensaje("2. No");
             opcion = scanner.nextInt();
@@ -404,15 +402,22 @@ public class LUE_DRINK {
                     mensaje("Opción no válida, inténtelo nuevamente");
             }
         } while (opcion != 2);
-    }
+    }  
 
     }
+        private static void limpiarCarrito() {
+    carritoProductos.clear();
+    carritoCantidad.clear();
+    carritoPrecios.clear();
+    System.out.println("El carrito ha sido vaciado.");
+} 
         private static void procesoPago() {
              int opcion;
     do {
-        mensaje(verde + "-----------------------------------------------\n");
-        mensaje("           Elije Proceso de Pago               \n");
-        mensaje(verde + "-----------------------------------------------\n");
+        mensaje(verde + "-------------------------------------------\n");
+                mensaje("        Elije el Proceso de Pago             ");
+                mensaje("      que el cliente desea realizar          ");
+        mensaje(verde + "-------------------------------------------\n");
         mensaje("1.Tarjeta/Debito \n2.Yape \n3.Plin \n4.Efectivo \n0.No hay opcion valida");
         opcion = capturarnumero();
         
@@ -449,7 +454,8 @@ public class LUE_DRINK {
 
 
     private static void confirmarPagoYmetododeEnvio() {
-        int opcion, desicion;
+        int opcion, desicion,eleccion;
+       
        
         do{
         mensaje("se realizo el pago?");
@@ -467,19 +473,24 @@ public class LUE_DRINK {
                         String direccion = capturartexto();
                         System.out.print("ingrese una Referencia por donde vive:");
                         String referencia = capturartexto();
-                mensaje(verde + "***********************************************");
+                mensaje(verde + "****************");
                         mensaje("* DESTINO DE LOS PRODUCTOS.                   ");
                         mensaje("* direccion: "+direccion+"                    ");
                         mensaje("* Referencia: "+referencia +"                 ");
                         mensaje("*preductos comprados:"+carritoCantidad + "X" + carritoProductos);
                         mensaje("*Importe Total:- S/." + carritoPrecios);
-                mensaje(verde + "***********************************************\n");
-                        
+                mensaje(verde + "****************");
+                        mostrarMenuOpciones();
                         
                         break;
 
                     case 2:
+                mensaje(verde + "*****************\n");
+                        mensaje("*preductos comprados:"+carritoCantidad + "X" + carritoProductos);
+                        mensaje("*Importe Total:- S/." + carritoPrecios);
+                        mensaje("");
                         mensaje("Entregar producto y pedir gracias por la compra");
+                mensaje(verde + "*****************\n");
                         mostrarMenuOpciones();
                         break;
 
@@ -492,9 +503,25 @@ public class LUE_DRINK {
                 }while(opcion !=2 );
                 break;
               case 2:
-               mensaje("Gracias por la visita");
-               mostrarMenuOpciones();
+              do{    
+               mensaje("desea realizar con otro metodo de pago?");
+               mensaje("1.si \n2.no");
+            eleccion = capturarnumero();
+                  switch (eleccion) {
+                      case 1:
+                          procesoPago();
+                          break;
+                      case 2:
+                          mensaje("decir gracias por la visita");
+                          mostrarMenuOpciones();
+                          break;     
+                      default:
+                         mensaje("opcion no valida, intente nuevamente");                         
+                  }             
+              }while(opcion !=2 );
+              
                 break;
+
               
               default:
                   System.out.println("opcion no valida, intente nuevamente");
@@ -502,9 +529,8 @@ public class LUE_DRINK {
               
             }
 
-        } while (opcion != 0);
+        } while (opcion != 2);
     }
-
     
 
     private static void mostrarGaseosas() {
@@ -671,7 +697,8 @@ public class LUE_DRINK {
         int precioIndex = seleccion.lastIndexOf(" S/");
         if (precioIndex != -1) {
             String descripcion = seleccion.substring(0, precioIndex).trim();
-            String precioTexto = seleccion.substring(precioIndex + 3).trim(); // Extrae texto después de "S/"
+            // Extrae texto después de "S/"
+            String precioTexto = seleccion.substring(precioIndex + 3).trim(); 
             
                 double precio = Double.parseDouble(precioTexto); // Convierte el precio a double
                 carritoProductos.add(descripcion);
@@ -691,33 +718,27 @@ public class LUE_DRINK {
     }
 }
 
-    public static void mensaje(String mensaje) {
+    private static void mensaje(String mensaje) {
 
         System.out.println(mensaje);
     }
 
-    public static String capturartexto() {
+    private static String capturartexto() {
 
         Scanner sc = new Scanner(System.in);
         String texto = sc.nextLine();
         return texto;
     }
 
-    public static int capturarnumero() {
+    private static int capturarnumero() {
 
         Scanner sc = new Scanner(System.in);
         int num = sc.nextInt();
         return num;
     }
     
-    private static void limpiarCarrito() {
-    carritoProductos.clear();
-    carritoCantidad.clear();
-    carritoPrecios.clear();
-    System.out.println("El carrito ha sido vaciado.");
-}
+ 
 
 
 
 }
-
